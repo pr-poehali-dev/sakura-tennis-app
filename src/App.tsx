@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 // ── Типы ──────────────────────────────────────────────────────────────
 type IconName = string;
-type Tab = "events" | "my" | "shop" | "create" | "profile";
+type Tab = "events" | "coaches" | "shop" | "create" | "profile";
 type OnboardingStep = "welcome" | "test" | "result";
 
 interface Question {
@@ -79,9 +79,63 @@ const SHOP_ITEMS = [
   { id: 4, name: "Сумка для ракеток", brand: "Head", price: "5 200 ₽", badge: "−15%", img: "👜" },
 ];
 
-const MY_TOURNAMENTS = [
-  { id: 1, title: "Зимний Кубок", date: "15 марта 2026", result: "2 место", points: "+45", status: "done" },
-  { id: 2, title: "Весенний Кубок Сакуры", date: "12 мая 2026", result: "Зарегистрирован", points: null, status: "upcoming" },
+const COACHES = [
+  {
+    id: 1,
+    name: "Александр Петров",
+    photo: "🧑‍🏫",
+    specialty: "Техника удара",
+    rating: 4.9,
+    reviews: 87,
+    experience: "12 лет",
+    level: "Профессионал",
+    price: "3 500 ₽ / час",
+    badges: ["Сертификат ITF", "Тренер года"],
+    bio: "Бывший игрок ATP. Специализируется на постановке удара и стратегии игры с задней линии.",
+    available: true,
+  },
+  {
+    id: 2,
+    name: "Мария Соколова",
+    photo: "👩‍🏫",
+    specialty: "Подача и сетка",
+    rating: 4.8,
+    reviews: 61,
+    experience: "8 лет",
+    level: "Продвинутый",
+    price: "2 800 ₽ / час",
+    badges: ["WTA Certified"],
+    bio: "Чемпионка России среди юниоров. Работает с игроками всех уровней, особенно с детьми.",
+    available: true,
+  },
+  {
+    id: 3,
+    name: "Дмитрий Чан",
+    photo: "🧑",
+    specialty: "Физподготовка",
+    rating: 4.7,
+    reviews: 43,
+    experience: "6 лет",
+    level: "Полупрофессионал",
+    price: "2 200 ₽ / час",
+    badges: ["Фитнес-тренер"],
+    bio: "Совмещает теннисные тренировки с физической подготовкой. Помогает избежать травм.",
+    available: false,
+  },
+  {
+    id: 4,
+    name: "Анна Берг",
+    photo: "👩",
+    specialty: "Психология игры",
+    rating: 4.6,
+    reviews: 29,
+    experience: "5 лет",
+    level: "Продвинутый",
+    price: "2 500 ₽ / час",
+    badges: ["Sport Psychology"],
+    bio: "Помогает справляться с давлением на турнирах и выстраивать правильный настрой.",
+    available: true,
+  },
 ];
 
 const NOTIFICATIONS = [
@@ -295,7 +349,134 @@ function Onboarding({ onDone }: { onDone: (score: number) => void }) {
   );
 }
 
-// ── Экран: Мои турниры и рейтинг ─────────────────────────────────────
+// ── Экран: Тренеры ────────────────────────────────────────────────────
+function CoachesScreen() {
+  const [filter, setFilter] = useState<"all" | "Техника удара" | "Подача и сетка" | "Физподготовка" | "Психология игры">("all");
+  const [booked, setBooked] = useState<number[]>([]);
+  const { toast } = useToast();
+
+  const filtered = filter === "all" ? COACHES : COACHES.filter((c) => c.specialty === filter);
+
+  function handleBook(coach: typeof COACHES[0]) {
+    if (booked.includes(coach.id)) {
+      toast({ title: "Уже записаны", description: `Заявка к ${coach.name} отправлена` });
+      return;
+    }
+    setBooked((b) => [...b, coach.id]);
+    toast({ title: "🎾 Заявка отправлена!", description: `${coach.name} свяжется с вами в течение часа` });
+  }
+
+  return (
+    <div className="px-4 pt-6 pb-4 animate-fade-in">
+      <div className="flex items-end justify-between mb-1">
+        <h2 className="font-display text-3xl font-light text-white">Тренеры</h2>
+        <span className="text-lg">🏅</span>
+      </div>
+      <p className="font-body text-xs opacity-40 text-white mb-5">Найдите своего наставника</p>
+
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-hide">
+        {[
+          { key: "all", label: "Все" },
+          { key: "Техника удара", label: "Техника" },
+          { key: "Подача и сетка", label: "Подача" },
+          { key: "Физподготовка", label: "Физо" },
+          { key: "Психология игры", label: "Психология" },
+        ].map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key as typeof filter)}
+            className="whitespace-nowrap px-4 py-2 rounded-xl font-body text-xs transition-all duration-200 flex-shrink-0"
+            style={{
+              background: filter === f.key ? "linear-gradient(135deg, #e8325a, #c9a84c)" : "rgba(255,255,255,0.05)",
+              color: filter === f.key ? "#fff" : "rgba(249,196,212,0.5)",
+              border: filter === f.key ? "none" : "1px solid rgba(249,196,212,0.1)",
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {filtered.map((coach) => (
+          <div key={coach.id} className="glass-card rounded-2xl p-4">
+            <div className="flex items-start gap-4 mb-3">
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+                style={{ background: "rgba(249,196,212,0.06)", border: "1px solid rgba(249,196,212,0.12)" }}
+              >
+                {coach.photo}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <p className="font-body text-sm font-semibold text-white">{coach.name}</p>
+                  <span
+                    className="text-[9px] font-body px-2 py-0.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: coach.available ? "rgba(100,200,100,0.15)" : "rgba(255,255,255,0.06)",
+                      color: coach.available ? "#7dd87d" : "rgba(249,196,212,0.3)",
+                    }}
+                  >
+                    {coach.available ? "● Доступен" : "○ Занят"}
+                  </span>
+                </div>
+                <p className="font-body text-xs opacity-50 text-white mb-1">{coach.specialty} · {coach.experience}</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-yellow-400 text-xs">★</span>
+                  <span className="font-body text-xs font-semibold text-white">{coach.rating}</span>
+                  <span className="font-body text-xs opacity-40 text-white">({coach.reviews} отзывов)</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="font-body text-xs leading-relaxed mb-3" style={{ color: "rgba(249,196,212,0.55)" }}>
+              {coach.bio}
+            </p>
+
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {coach.badges.map((b) => (
+                <span
+                  key={b}
+                  className="text-[9px] font-body uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(201,168,76,0.12)", color: "#c9a84c" }}
+                >
+                  {b}
+                </span>
+              ))}
+              <span
+                className="text-[9px] font-body uppercase tracking-wider px-2 py-0.5 rounded-full"
+                style={{ background: "rgba(249,196,212,0.08)", color: "rgba(249,196,212,0.5)" }}
+              >
+                {coach.level}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="font-body text-sm font-semibold" style={{ color: "#c9a84c" }}>{coach.price}</span>
+              <button
+                onClick={() => handleBook(coach)}
+                className="px-5 py-2 rounded-xl font-body text-xs font-medium text-white transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
+                style={{
+                  background: booked.includes(coach.id)
+                    ? "rgba(255,255,255,0.08)"
+                    : coach.available
+                    ? "linear-gradient(135deg, #e8325a, #c9a84c)"
+                    : "rgba(255,255,255,0.06)",
+                  color: !coach.available && !booked.includes(coach.id) ? "rgba(249,196,212,0.3)" : "#fff",
+                  cursor: !coach.available && !booked.includes(coach.id) ? "not-allowed" : "pointer",
+                }}
+              >
+                {booked.includes(coach.id) ? "✓ Записан" : coach.available ? "Записаться" : "Недоступен"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Старый Экран: Мои турниры (удалён) ────────────────────────────────
 function MyScreen({ score }: { score: number }) {
   const level = getLevel(score);
   const rating = 1240 + score * 3;
@@ -796,7 +977,7 @@ function ProfileScreen({ score, onLogout }: { score: number; onLogout: () => voi
 
 // ── Навигация ─────────────────────────────────────────────────────────
 const NAV_ITEMS: { key: Tab; icon: string; label: string }[] = [
-  { key: "my", icon: "Trophy", label: "Мои" },
+  { key: "coaches", icon: "GraduationCap", label: "Тренеры" },
   { key: "events", icon: "Calendar", label: "События" },
   { key: "shop", icon: "ShoppingBag", label: "Shop" },
   { key: "create", icon: "PlusCircle", label: "Создать" },
@@ -807,7 +988,7 @@ const NAV_ITEMS: { key: Tab; icon: string; label: string }[] = [
 export default function App() {
   const [onboarded, setOnboarded] = useState(false);
   const [score, setScore] = useState(0);
-  const [activeTab, setActiveTab] = useState<Tab>("events");
+  const [activeTab, setActiveTab] = useState<Tab>("coaches");
 
   function handleOnboardingDone(s: number) {
     setScore(s);
@@ -855,7 +1036,7 @@ export default function App() {
 
       {/* Контент */}
       <main className="flex-1 pt-16 pb-24 overflow-y-auto relative z-10 max-w-lg mx-auto w-full">
-        {activeTab === "my" && <MyScreen score={score} />}
+        {activeTab === "coaches" && <CoachesScreen />}
         {activeTab === "events" && <EventsScreen />}
         {activeTab === "shop" && <ShopScreen />}
         {activeTab === "create" && <CreateScreen />}
