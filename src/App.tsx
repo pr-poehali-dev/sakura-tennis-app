@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 // ── Типы ──────────────────────────────────────────────────────────────
 type IconName = string;
@@ -382,7 +384,18 @@ function MyScreen({ score }: { score: number }) {
 // ── Экран: События ────────────────────────────────────────────────────
 function EventsScreen() {
   const [filter, setFilter] = useState<"all" | "tournament" | "sparring">("all");
+  const [registered, setRegistered] = useState<number[]>([]);
+  const { toast } = useToast();
   const filtered = EVENTS.filter((e) => filter === "all" || e.type === filter);
+
+  function handleRegister(ev: typeof EVENTS[0]) {
+    if (registered.includes(ev.id)) {
+      toast({ title: "Вы уже записаны", description: ev.title });
+      return;
+    }
+    setRegistered((r) => [...r, ev.id]);
+    toast({ title: "🌸 Заявка принята!", description: `Вы записаны на «${ev.title}»` });
+  }
 
   return (
     <div className="px-4 pt-6 pb-4 animate-fade-in">
@@ -457,10 +470,11 @@ function EventsScreen() {
                 {ev.level}
               </span>
               <button
+                onClick={() => handleRegister(ev)}
                 className="px-5 py-2 rounded-xl font-body text-xs font-medium text-white transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-                style={{ background: "linear-gradient(135deg, #e8325a, #c9a84c)" }}
+                style={{ background: registered.includes(ev.id) ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg, #e8325a, #c9a84c)" }}
               >
-                Записаться
+                {registered.includes(ev.id) ? "✓ Записан" : "Записаться"}
               </button>
             </div>
           </div>
@@ -472,6 +486,14 @@ function EventsScreen() {
 
 // ── Экран: Sakura Shop ────────────────────────────────────────────────
 function ShopScreen() {
+  const [cart, setCart] = useState<number[]>([]);
+  const { toast } = useToast();
+
+  function addToCart(item: typeof SHOP_ITEMS[0]) {
+    setCart((c) => [...c, item.id]);
+    toast({ title: "🛍️ Добавлено в корзину", description: item.name });
+  }
+
   return (
     <div className="px-4 pt-6 pb-4 animate-fade-in">
       <div className="flex items-end justify-between mb-1">
@@ -503,10 +525,11 @@ function ShopScreen() {
               <div className="flex items-center justify-between">
                 <span className="font-body text-sm font-semibold" style={{ color: "#c9a84c" }}>{item.price}</span>
                 <button
+                  onClick={() => addToCart(item)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                  style={{ background: "rgba(232,50,90,0.2)" }}
+                  style={{ background: cart.includes(item.id) ? "rgba(201,168,76,0.3)" : "rgba(232,50,90,0.2)" }}
                 >
-                  <Icon name="Plus" size={14} style={{ color: "#f9c4d4" }} />
+                  <Icon name={cart.includes(item.id) ? "Check" : "Plus"} size={14} style={{ color: "#f9c4d4" }} />
                 </button>
               </div>
             </div>
@@ -521,6 +544,7 @@ function ShopScreen() {
         <p className="font-display text-lg text-white mb-1">Стать партнёром</p>
         <p className="font-body text-xs opacity-40 text-white mb-3">Разместите свои товары в магазине</p>
         <button
+          onClick={() => toast({ title: "Скоро!", description: "Программа партнёрства открывается в мае 2026" })}
           className="px-6 py-2.5 rounded-xl font-body text-xs font-medium transition-all hover:scale-[1.02]"
           style={{ border: "1px solid rgba(249,196,212,0.25)", color: "#f9c4d4" }}
         >
@@ -535,9 +559,15 @@ function ShopScreen() {
 function CreateScreen() {
   const [tab, setTab] = useState<"create" | "notif">("create");
   const [notifs, setNotifs] = useState(NOTIFICATIONS);
+  const [eventType, setEventType] = useState<string | null>(null);
+  const { toast } = useToast();
 
   function markRead(id: number) {
     setNotifs((n) => n.map((x) => (x.id === id ? { ...x, read: true } : x)));
+  }
+
+  function handlePublish() {
+    toast({ title: "🎾 Событие опубликовано!", description: "Оно появится в разделе «События»" });
   }
 
   return (
@@ -571,8 +601,13 @@ function CreateScreen() {
               { icon: "Trophy", label: "Турнир" },
               { icon: "Swords", label: "Спарринг" },
             ].map((t) => (
-              <div key={t.label} className="glass-card glass-card-hover rounded-2xl p-4 text-center cursor-pointer">
-                <Icon name={t.icon as IconName} size={24} className="mx-auto mb-2" style={{ color: "#c9a84c" }} />
+              <div
+                key={t.label}
+                onClick={() => setEventType(t.label)}
+                className="glass-card glass-card-hover rounded-2xl p-4 text-center cursor-pointer"
+                style={{ border: eventType === t.label ? "1px solid rgba(232,50,90,0.5)" : undefined }}
+              >
+                <Icon name={t.icon as IconName} size={24} className="mx-auto mb-2" style={{ color: eventType === t.label ? "#e8325a" : "#c9a84c" }} />
                 <p className="font-body text-sm text-white">{t.label}</p>
               </div>
             ))}
@@ -603,6 +638,7 @@ function CreateScreen() {
           </div>
 
           <button
+            onClick={handlePublish}
             className="w-full mt-5 py-4 rounded-2xl font-body font-medium text-white text-sm tracking-wide transition-all hover:scale-[1.01]"
             style={{ background: "linear-gradient(135deg, #e8325a 0%, #c9a84c 100%)" }}
           >
@@ -653,9 +689,18 @@ function CreateScreen() {
 }
 
 // ── Экран: Профиль ────────────────────────────────────────────────────
-function ProfileScreen({ score }: { score: number }) {
+function ProfileScreen({ score, onLogout }: { score: number; onLogout: () => void }) {
   const level = getLevel(score);
   const [isPartner, setIsPartner] = useState(false);
+  const { toast } = useToast();
+
+  const menuToasts: Record<string, string> = {
+    "Редактировать профиль": "Редактирование профиля — скоро",
+    "Мои достижения": "Раздел достижений в разработке",
+    "Платежи и подписка": "Платёжный раздел — скоро",
+    "Настройки": "Настройки — скоро",
+    "Поддержка": "Напишите нам: support@sakuratennis.ru",
+  };
 
   return (
     <div className="px-4 pt-6 pb-4 animate-fade-in">
@@ -703,7 +748,10 @@ function ProfileScreen({ score }: { score: number }) {
             : "Размещайте товары в магазине, организуйте события и получайте бонусы за привлечение игроков."}
         </p>
         <button
-          onClick={() => setIsPartner(!isPartner)}
+          onClick={() => {
+            setIsPartner(!isPartner);
+            if (!isPartner) toast({ title: "🤝 Заявка отправлена!", description: "Мы свяжемся с вами в течение 24 часов" });
+          }}
           className="px-6 py-2.5 rounded-xl font-body text-xs font-medium text-white transition-all hover:scale-[1.02]"
           style={{
             background: isPartner ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #e8325a, #c9a84c)",
@@ -723,6 +771,7 @@ function ProfileScreen({ score }: { score: number }) {
         ].map((item) => (
           <div
             key={item.label}
+            onClick={() => toast({ title: item.label, description: menuToasts[item.label] })}
             className="glass-card glass-card-hover rounded-xl px-4 py-3.5 flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -734,7 +783,11 @@ function ProfileScreen({ score }: { score: number }) {
         ))}
       </div>
 
-      <button className="w-full mt-4 py-3 rounded-xl font-body text-xs opacity-30 hover:opacity-50 transition-opacity" style={{ color: "#f9c4d4" }}>
+      <button
+        onClick={onLogout}
+        className="w-full mt-4 py-3 rounded-xl font-body text-xs opacity-30 hover:opacity-50 transition-opacity"
+        style={{ color: "#f9c4d4" }}
+      >
         Выйти из аккаунта
       </button>
     </div>
@@ -771,6 +824,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#0d0a0c" }}>
+      <Toaster />
       <PetalsBg />
 
       {/* Шапка */}
@@ -805,7 +859,7 @@ export default function App() {
         {activeTab === "events" && <EventsScreen />}
         {activeTab === "shop" && <ShopScreen />}
         {activeTab === "create" && <CreateScreen />}
-        {activeTab === "profile" && <ProfileScreen score={score} />}
+        {activeTab === "profile" && <ProfileScreen score={score} onLogout={() => { setOnboarded(false); setScore(0); setActiveTab("events"); }} />}
       </main>
 
       {/* Нижняя навигация */}
