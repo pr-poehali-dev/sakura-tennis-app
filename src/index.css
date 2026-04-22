@@ -4,89 +4,42 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 330 15% 6%;
+    --foreground: 30 20% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 330 12% 9%;
+    --card-foreground: 30 20% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 330 12% 9%;
+    --popover-foreground: 30 20% 90%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 340 60% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 330 10% 14%;
+    --secondary-foreground: 30 20% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 330 10% 12%;
+    --muted-foreground: 30 10% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 42 60% 52%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 330 12% 16%;
+    --input: 330 12% 16%;
+    --ring: 340 60% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sakura: #e8325a;
+    --sakura-light: #f9c4d4;
+    --sakura-dark: #8b1a2e;
+    --gold: #c9a84c;
+    --gold-light: #f0d78a;
+    --obsidian: #0d0a0c;
   }
 }
 
@@ -95,7 +48,86 @@
     @apply border-border;
   }
 
+  html,
   body {
     @apply bg-background text-foreground;
+    font-family: "Golos Text", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Cormorant", serif;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Cormorant", serif;
+  }
+  .font-body {
+    font-family: "Golos Text", sans-serif;
+  }
+
+  .sakura-gradient {
+    background: linear-gradient(135deg, #e8325a 0%, #c9a84c 100%);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(249, 196, 212, 0.12);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s ease;
+  }
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(249, 196, 212, 0.25);
+    transform: translateY(-2px);
+  }
+
+  .text-sakura {
+    color: #f9c4d4;
+  }
+
+  .text-gold {
+    color: var(--gold);
+  }
+
+  .petal {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    font-size: 1.2rem;
+    opacity: 0.25;
+    animation: petal-fall linear infinite;
+  }
+
+  .nav-pill {
+    transition: all 0.25s ease;
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      #f9c4d4 0%,
+      #c9a84c 30%,
+      #f9c4d4 60%,
+      #c9a84c 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .level-bar {
+    background: linear-gradient(90deg, #e8325a, #c9a84c);
+    border-radius: 999px;
+    transition: width 0.8s ease;
   }
 }
